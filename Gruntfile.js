@@ -60,10 +60,10 @@
       concat: {
         js: {
           src: [
-            '<%= yeoman.app %>/ng-weekly-scheduler/js/module.js',
-            '<%= yeoman.app %>/ng-weekly-scheduler/js/**/*.js'
+            '<%= yeoman.app %>/ng-scheduler/js/module.js',
+            '<%= yeoman.app %>/ng-scheduler/js/**/*.js'
           ],
-          dest: '<%= yeoman.dist %>/js/ng-weekly-scheduler.js',
+          dest: '<%= yeoman.dist %>/js/ng-scheduler.js',
           options: {
             banner: ';(function( window, undefined ){ \n \'use strict\';\n\n',
             footer: '}( window ));'
@@ -169,6 +169,7 @@
               'angular-i18n/angular-locale_fr-fr.js',
               'angular-i18n/angular-locale_de-de.js',
               'angular-i18n/angular-locale_es-es.js',
+              'angular-i18n/angular-locale_pt-br.js',
               'angular-dynamic-locale/dist/tmhDynamicLocale.js',
               'moment/moment.js'],
             dest: '<%= yeoman.dist %>/vendor'
@@ -180,7 +181,7 @@
       html2js: {
         options: {
           base: '<%= yeoman.app %>',
-          module: 'ngWeeklySchedulerTemplates',
+          module: 'ngSchedulerTemplates',
           quoteChar: '\'',
           htmlmin: {
             collapseBooleanAttributes: true,
@@ -194,8 +195,8 @@
           }
         },
         templates: {
-          src: ['<%= yeoman.app %>/ng-weekly-scheduler/views/**/*.html'],
-          dest: '<%= yeoman.app %>/ng-weekly-scheduler/js/views/templates.js'
+          src: ['<%= yeoman.app %>/ng-scheduler/views/**/*.html'],
+          dest: '<%= yeoman.app %>/ng-scheduler/js/views/templates.js'
         }
       },
 

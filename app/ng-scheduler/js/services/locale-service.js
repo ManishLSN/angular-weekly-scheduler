@@ -1,15 +1,16 @@
-angular.module('weeklySchedulerI18N', ['tmh.dynamicLocale']);
+angular.module('schedulerI18N', ['tmh.dynamicLocale']);
 
-angular.module('weeklySchedulerI18N')
-  .provider('weeklySchedulerLocaleService', ['tmhDynamicLocaleProvider', function (tmhDynamicLocaleProvider) {
+angular.module('schedulerI18N')
+  .provider('schedulerLocaleService', ['tmhDynamicLocaleProvider', function (tmhDynamicLocaleProvider) {
 
     var defaultConfig = {
-      doys: {'de-de': 4, 'en-gb': 4, 'en-us': 6, 'fr-fr': 4},
+      doys: {'de-de': 4, 'en-gb': 4, 'en-us': 6, 'fr-fr': 4, 'pt-br': 4},
       lang: {
-        'de-de': {month: 'Monat', weekNb: 'Wochenummer', addNew: 'Hinzufügen'},
-        'en-gb': {month: 'Month', weekNb: 'Week #', addNew: 'Add'},
-        'en-us': {month: 'Month', weekNb: 'Week #', addNew: 'Add'},
-        'fr-fr': {month: 'Mois', weekNb: 'N° de semaine', addNew: 'Ajouter'}
+        'de-de': {month: 'Monat', weekNb: 'Wochenummer', dayNb: 'Tag', addNew: 'Hinzufügen'},
+        'en-gb': {month: 'Month', weekNb: 'Week #', dayNb: 'Day #', addNew: 'Add'},
+        'en-us': {month: 'Month', weekNb: 'Week #', dayNb: 'Day #', addNew: 'Add'},
+        'fr-fr': {month: 'Mois', weekNb: 'N° de semaine', dayNb: 'Jour', addNew: 'Ajouter'},
+        'pt-br': {month: 'Mês', weekNb: 'N° da semana', dayNb: 'Dia' , addNew: 'Adicionar'}
       }
     };
 
@@ -54,7 +55,7 @@ angular.module('weeklySchedulerI18N')
       }
 
       $rootScope.$on('$localeChangeSuccess', function () {
-        $rootScope.$broadcast('weeklySchedulerLocaleChanged', getLang());
+        $rootScope.$broadcast('schedulerLocaleChanged', getLang());
       });
 
       return {

@@ -1,6 +1,6 @@
-angular.module('demoApp', ['ngAnimate', 'weeklyScheduler', 'weeklySchedulerI18N'])
+angular.module('demoApp', ['ngAnimate', 'scheduler', 'schedulerI18N'])
 
-  .config(['weeklySchedulerLocaleServiceProvider', function (localeServiceProvider) {
+  .config(['schedulerLocaleServiceProvider', function (localeServiceProvider) {
     localeServiceProvider.configure({
       doys: {'es-es': 4},
       lang: {'es-es': {month: 'Mes', weekNb: 'número de la semana', addNew: 'Añadir'}},
@@ -8,17 +8,30 @@ angular.module('demoApp', ['ngAnimate', 'weeklyScheduler', 'weeklySchedulerI18N'
     });
   }])
 
-  .controller('DemoController', ['$scope', '$timeout', 'weeklySchedulerLocaleService', '$log',
+  .controller('DemoController', ['$scope', '$timeout', 'schedulerLocaleService', '$log',
     function ($scope, $timeout, localeService, $log) {
 
       $scope.model = {
         locale: localeService.$locale.id,
-        options: {/*monoSchedule: true*/},
+        options: {
+          month: 0,
+          year: 2015,
+          type: 'DAILY',
+          denyResize: true,
+          ignoreOverlaps: true,
+          denyDelete: true,
+          hideAllocationText: true,
+          defaultAllocationColor: '#B5180F',
+          clickEvent: function (data) {
+            console.log(data);
+            data.color = '#20B507';
+          }
+        },
         items: [{
           label: 'Item 1',
           editable: false,
           schedules: [
-            {start: moment('2015-12-27').toDate(), end: moment('2016-08-01').toDate()}
+            {start: moment('2015-01-10').toDate(), end: moment('2015-01-11').toDate(), color: "#b50098"}
           ]
         }]
       };

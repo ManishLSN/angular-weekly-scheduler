@@ -1,7 +1,7 @@
 /*global mouseScroll */
-angular.module('weeklyScheduler')
+angular.module('scheduler')
 
-  .directive('weeklyScheduler', ['$parse', 'weeklySchedulerTimeService', '$log', function ($parse, timeService, $log) {
+  .directive('scheduler', ['$parse', 'schedulerTimeService', '$log', 'schedulerService', function ($parse, timeService, $log, schedulerService) {
 
     var defaultOptions = {
       monoSchedule: false,
@@ -14,23 +14,47 @@ angular.module('weeklyScheduler')
      * @param options
      * @returns {{minDate: *, maxDate: *, nbWeeks: *}}
      */
-    function config(schedules, options) {
-      var now = moment();
 
+    function getDateByOptions(options) {
+      return timeService.getDate(null, options.month, options.year);
+    }
+
+    function getMinDate(schedules, options) {
+      var now = timeService.getDate();
+      if (!angular.isUndefined(options.month)) {
+        return getDateByOptions(options).startOf('month');
+      } else {
+        return (schedules ? schedules.reduce(function (minDate, slot) {
+          return timeService.compare(slot.start, 'isBefore', minDate);
+        }, now) : now).startOf('week')
+      }
+    }
+
+    function getMaxDate(schedules, options) {
+      var now = timeService.getDate();
+      if (!angular.isUndefined(options.month)) {
+        return getDateByOptions(options).endOf('month');
+      } else {
+        return (schedules ? schedules.reduce(function (maxDate, slot) {
+          return timeService.compare(slot.end, 'isAfter', maxDate);
+        }, now) : now).clone().add(1, 'year').endOf('week')
+      }
+    }
+
+    function config(schedules, options) {
       // Calculate min date of all scheduled events
-      var minDate = (schedules ? schedules.reduce(function (minDate, slot) {
-        return timeService.compare(slot.start, 'isBefore', minDate);
-      }, now) : now).startOf('week');
+      var minDate = getMinDate(schedules, options);
 
       // Calculate max date of all scheduled events
-      var maxDate = (schedules ? schedules.reduce(function (maxDate, slot) {
-        return timeService.compare(slot.end, 'isAfter', maxDate);
-      }, now) : now).clone().add(1, 'year').endOf('week');
+      var maxDate = getMaxDate(schedules, options);
 
       // Calculate nb of weeks covered by minDate => maxDate
       var nbWeeks = timeService.weekDiff(minDate, maxDate);
 
-      var result = angular.extend(options, {minDate: minDate, maxDate: maxDate, nbWeeks: nbWeeks});
+      // Get the number of days of the selected month
+      var nbDays = schedulerService.isDailyScheduler(options) ? getDateByOptions(options).endOf('month').date() : 0;
+
+      var result = angular.extend(options, {minDate: minDate, maxDate: maxDate, nbWeeks: nbWeeks, nbDays: nbDays});
       // Log configuration
       $log.debug('Weekly Scheduler configuration:', result);
 
@@ -39,12 +63,12 @@ angular.module('weeklyScheduler')
 
     return {
       restrict: 'E',
-      require: 'weeklyScheduler',
+      require: 'scheduler',
       transclude: true,
-      templateUrl: 'ng-weekly-scheduler/views/weekly-scheduler.html',
-      controller: ['$injector', function ($injector) {
+      templateUrl: 'ng-scheduler/views/scheduler.html',
+      controller: ['$injector', 'schedulerService', function ($injector, schedulerService) {
         // Try to get the i18n service
-        var name = 'weeklySchedulerLocaleService';
+        var name = 'schedulerLocaleService';
         if ($injector.has(name)) {
           $log.info('The I18N service has successfully been initialized!');
           var localeService = $injector.get(name);
@@ -55,6 +79,7 @@ angular.module('weeklyScheduler')
 
         // Will hang our model change listeners
         this.$modelChangeListeners = [];
+        this.schedulerService = schedulerService;
       }],
       controllerAs: 'schedulerCtrl',
       link: function (scope, element, attrs, schedulerCtrl) {
@@ -63,6 +88,14 @@ angular.module('weeklyScheduler')
 
         // Get the schedule container element
         var el = element[0].querySelector(defaultOptions.selector);
+
+        scope.isWeeklyScheduler = function() {
+          return schedulerCtrl.schedulerService.isWeeklyScheduler(options);
+        };
+
+        scope.isDailyScheduler = function() {
+          return schedulerCtrl.schedulerService.isDailyScheduler(options);
+        };
 
         function onModelChange(items) {
           // Check items are present
@@ -89,7 +122,7 @@ angular.module('weeklyScheduler')
             }, []), options);
 
             // Then resize schedule area knowing the number of weeks in scope
-            el.firstChild.style.width = schedulerCtrl.config.nbWeeks / 53 * 200 + '%';
+            el.firstChild.style.width = angular.isUndefined(options.month) ? schedulerCtrl.config.nbWeeks / 53 * 200 + '%' : '100%' ;
 
             // Finally, run the sub directives listeners
             schedulerCtrl.$modelChangeListeners.forEach(function (listener) {
@@ -119,7 +152,7 @@ angular.module('weeklyScheduler')
           /**
            * Listen to $locale change (brought by external module weeklySchedulerI18N)
            */
-          scope.$on('weeklySchedulerLocaleChanged', function (e, labels) {
+          scope.$on('schedulerLocaleChanged', function (e, labels) {
             if (schedulerCtrl.config) {
               schedulerCtrl.config.labels = labels;
             }

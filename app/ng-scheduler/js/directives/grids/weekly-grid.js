@@ -1,5 +1,5 @@
 /*global GRID_TEMPLATE */
-angular.module('weeklyScheduler')
+angular.module('scheduler')
   .directive('weeklyGrid', [function () {
 
     function doGrid(element, attrs, model) {
@@ -24,7 +24,7 @@ angular.module('weeklyScheduler')
 
     return {
       restrict: 'E',
-      require: '^weeklyScheduler',
+      require: '^scheduler',
       link: function (scope, element, attrs, schedulerCtrl) {
         if (schedulerCtrl.config) {
           doGrid(element, attrs, schedulerCtrl.config);
